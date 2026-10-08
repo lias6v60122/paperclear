@@ -120,8 +120,7 @@ body {
 
 /* ─── Home screen — drop zone ─── */
 #screen-home {
-  align-items: center;
-  justify-content: center;
+  /* centering handled by .home-body; no override needed here */
 }
 
 .home-body {
