@@ -9,7 +9,7 @@ Build mode: learn
 
 ## Slices
 
-- [ ] **1. Running app — Gemini reads a document photo**
+- [x] **1. Running app — Gemini reads a document photo**
   Becomes usable: Electron window opens. You pick a photo, the app sends it to Gemini, and the raw JSON response appears on screen. No design yet — just proves the kernel works.
   Why now: Gemini image reading is the highest risk and the unique kernel. If it doesn't work, nothing else matters. Prove it on the first slice, with the full project scaffold included.
   PRD ref: `prd.md > Features and Behavior > Document Reading`
@@ -19,7 +19,7 @@ Build mode: learn
   Learner check: アプリを起動して、写真を1枚選んでください。画面にテキスト（JSONのデータ）が表示されれば成功です。
   Commit: `Scaffold project and prove Gemini image reading works`
 
-- [ ] **2. Full core loop — drop zone, loading, results, language toggle**
+- [x] **2. Full core loop — drop zone, loading, results, language toggle**
   Becomes usable: The complete Paperclear experience. Drop a photo → scanning animation → deadline in vermilion + 3-line summary appears one by one → language toggle switches JP/EN instantly → "Read another" returns to start.
   Why now: With the API proven, build the full UI in one slice so there's a complete, shippable loop to review and refine.
   PRD ref: `prd.md > Screens and Layout`, `prd.md > Look and Feel`, `prd.md > Features and Behavior`
@@ -29,7 +29,7 @@ Build mode: learn
   Learner check: 書類の写真を1枚ドロップしてください。期限が朱色で大きく表示され、3行が順番に現れたら成功です。言語切り替えボタンも押してみてください。
   Commit: `Add full UI: drop zone, scan animation, result display, language toggle`
 
-- [ ] **3. API key setup screen + settings**
+- [x] **3. API key setup screen + settings**
   Becomes usable: No more hardcoded key. First launch shows the setup screen. Key is saved to AppData. Settings gear lets you change or delete the key.
   Why now: The app can't be shared or demoed safely with a hardcoded key. This completes the real security model from the spec.
   PRD ref: `prd.md > Screens and Layout > API Key Setup Screen`, `prd.md > Screens and Layout > Settings Screen`
@@ -39,7 +39,7 @@ Build mode: learn
   Learner check: アプリを起動してください。APIキーの入力画面が出たら、Geminiのキーを入力して「保存して始める」を押してみてください。ホーム画面に進んだら成功です。
   Commit: `Add API key setup screen and settings`
 
-- [ ] **4. Error states**
+- [x] **4. Error states**
   Becomes usable: Every failure mode from the spec shows a clear, specific message instead of a broken or silent screen.
   Why now: Error handling is the last thing between a working prototype and a demo-ready product.
   PRD ref: `prd.md > States and Boundaries`
