@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #fff;
+    font-family: 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    color: #111;
+    width: 794px;
+    padding: 48px 56px;
+  }
+  .page { width: 100%; }
+
+  /* Header bar */
+  .header-bar {
+    background: #1a3a6b;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+  }
+
+  /* Title */
+  .doc-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.12em;
+    border-bottom: 2.5px solid #1a3a6b;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+
+  /* Recipient block */
+  .recipient-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+  .recipient-left { font-size: 14px; line-height: 2; }
+  .recipient-name { font-size: 20px; font-weight: 700; }
+  .recipient-right { font-size: 12px; text-align: right; line-height: 1.8; color: #444; }
+
+  /* Deadline banner */
+  .deadline-banner {
+    border: 2.5px solid #cc2200;
+    border-radius: 4px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fff8f6;
+  }
+  .deadline-label-red {
+    background: #cc2200;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+  .deadline-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #cc2200;
+  }
+
+  /* Body paragraphs */
+  .body-text {
+    font-size: 13px;
+    line-height: 1.9;
+    margin-bottom: 16px;
+    text-indent: 1em;
+  }
+
+  /* Amount table */
+  .amount-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+  .amount-table th {
+    background: #e8edf5;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .amount-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: center;
+  }
+  .amount-table .total-row td {
+    font-weight: 700;
+    font-size: 16px;
+    color: #cc2200;
+    background: #fff8f6;
+  }
+
+  /* Payment methods */
+  .section-title {
+    font-weight: 700;
+    font-size: 13px;
+    border-left: 4px solid #1a3a6b;
+    padding-left: 8px;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .payment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .payment-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .payment-icon { font-size: 20px; margin-bottom: 4px; }
+  .payment-name { font-weight: 700; font-size: 13px; }
+
+  /* Enclosed slip notice */
+  .slip-notice {
+    background: #f0f4fa;
+    border: 1px solid #c0ccdd;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid #ccc;
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header-bar">さくら市役所　健康保険年金課</div>
+
+  <h1 class="doc-title">国民健康保険料　納付通知書</h1>
+
+  <div class="recipient-block">
+    <div class="recipient-left">
+      <div style="font-size:12px;color:#444;margin-bottom:2px;">被保険者</div>
+      <div class="recipient-name">山田　太郎　様</div>
+      <div style="font-size:12px;color:#444;margin-top:4px;">
+        〒123-4567<br>
+        さくら市緑町3丁目7番2号
+      </div>
+    </div>
+    <div class="recipient-right">
+      令和8年10月1日<br>
+      保険証番号：<strong>SA-2026-11204</strong><br>
+      担当：健康保険係　☎ 0120-XXX-XXX
+    </div>
+  </div>
+
+  <div class="deadline-banner">
+    <span class="deadline-label-red">納付期限</span>
+    <span class="deadline-text">令和8年10月31日（土）</span>
+    <span style="font-size:12px;color:#cc2200;">※ 期限を過ぎると延滞金が発生します</span>
+  </div>
+
+  <p class="body-text">
+    このたびは、令和8年度国民健康保険料の納付期限についてお知らせします。
+    下記の金額を期限内にお支払いくださいますようお願い申し上げます。
+  </p>
+
+  <table class="amount-table">
+    <thead>
+      <tr>
+        <th>期別</th>
+        <th>医療分保険料</th>
+        <th>後期支援金分</th>
+        <th>介護分保険料</th>
+        <th>合　計</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>第5期</td>
+        <td>8,400 円</td>
+        <td>1,450 円</td>
+        <td>820 円</td>
+        <td>10,670 円</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right;font-size:13px;">今回お支払い金額</td>
+        <td>10,670 円</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="section-title">お支払い方法</p>
+  <div class="payment-grid">
+    <div class="payment-item">
+      <div class="payment-icon">🏪</div>
+      <div class="payment-name">コンビニエンスストア</div>
+      <div>同封の納付書をレジへ</div>
+    </div>
+    <div class="payment-item">
+      <div class="payment-icon">🏦</div>
+      <div class="payment-name">銀行・郵便局</div>
+      <div>窓口またはATMで納付書を使用</div>
+    </div>
+    <div class="payment-item">
+      <div class="payment-icon">📱</div>
+      <div class="payment-name">スマートフォン決済</div>
+      <div>PayPay・LINE Pay等<br>納付書のバーコードを読取</div>
+    </div>
+  </div>
+
+  <div class="slip-notice">
+    <strong>【同封書類のご確認】</strong><br>
+    この通知書に同封の「納付書」をお使いください。納付書を紛失された場合は、健康保険年金課（☎ 0120-XXX-XXX）までご連絡ください。<br>
+    口座振替をご利用の方は、自動で引き落としされますので、この通知書のみで対応済みです。
+  </div>
+
+  <div class="footer">
+    <span>さくら市役所　健康保険年金課　〒123-0000 さくら市役所前1-1</span>
+    <span>※ この書類は架空のサンプルです</span>
+  </div>
+
+</div>
+</body>
+</html>

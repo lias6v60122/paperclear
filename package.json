@@ -1,0 +1,19 @@
+{
+  "name": "paperclear",
+  "version": "0.1.0",
+  "description": "Japanese official document action reader — turns dense paperwork into 3-line instructions",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.0.0",
+    "electron": "^36.0.0"
+  },
+  "allowScripts": {
+    "electron@36.9.5": true,
+    "@google/genai@1.52.0": true,
+    "protobufjs@7.6.6": true
+  }
+}

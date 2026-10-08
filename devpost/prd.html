@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperclear — PRD</title>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #faf7f2;
+    --surface2: #f0ece2;
+    --accent: #c0392b;
+    --accent-soft: #fdecea;
+    --ink: #1a1510;
+    --muted: #7a7060;
+    --border: #ddd5c4;
+    --green: #2d6a4f;
+    --green-soft: #d8f3dc;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.65;
+    padding: 2rem 1rem 5rem;
+  }
+  .page { max-width: 820px; margin: 0 auto; }
+
+  /* Header */
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    padding: 0.25rem 0.8rem; border-radius: 999px;
+    margin-bottom: 0.7rem;
+  }
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; }
+
+  /* Section label */
+  .section-label {
+    font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.11em; text-transform: uppercase;
+    color: var(--muted); margin: 2.2rem 0 0.8rem;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h2 {
+    font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.7rem;
+  }
+
+  /* Journey diagram */
+  .journey {
+    display: flex; flex-direction: column; gap: 0;
+    margin-bottom: 0.5rem;
+  }
+  .jstep {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .jstep:last-child { border-bottom: none; }
+  .jnum {
+    flex-shrink: 0;
+    width: 2rem; height: 2rem;
+    background: var(--ink); color: var(--bg);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    margin-top: 0.1rem;
+  }
+  .jnum.accent { background: var(--accent); }
+  .jbody { flex: 1; }
+  .jbody strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .jbody span { font-size: 0.88rem; color: var(--muted); }
+
+  /* Screen accordion */
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.7rem;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  summary {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    font-weight: 600; font-size: 0.95rem;
+    list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "＋"; color: var(--muted); }
+  details[open] summary::after { content: "－"; }
+  .dbody { padding: 0 1.25rem 1.25rem; }
+  .dbody p { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--muted); }
+  .dbody ul { padding-left: 1.2rem; }
+  .dbody li { font-size: 0.88rem; margin-bottom: 0.3rem; color: var(--muted); }
+  .dbody li strong { color: var(--ink); }
+
+  /* States table */
+  .states { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .states th {
+    text-align: left; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); padding: 0.4rem 0.75rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .states td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .states tr:last-child td { border-bottom: none; }
+  .state-tag {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 700;
+    padding: 0.15rem 0.5rem; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .tag-normal { background: var(--green-soft); color: var(--green); }
+  .tag-error  { background: var(--accent-soft); color: var(--accent); }
+  .tag-first  { background: #e8f0fe; color: #1967d2; }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; gap: 0.6rem; align-items: flex-start;
+    padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .ck { color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
+  .checklist .df { color: var(--muted); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
+
+  /* Look and feel swatches */
+  .palette { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+  .swatch {
+    width: 2.5rem; height: 2.5rem; border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 2px;
+  }
+  .swatch span { font-size: 0.55rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+  .lf-row { display: flex; gap: 0.5rem; align-items: baseline; margin-bottom: 0.35rem; font-size: 0.88rem; }
+  .lf-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); min-width: 90px; }
+
+  /* Open questions */
+  .oq-list { list-style: none; }
+  .oq-list li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .oq-list li:last-child { border-bottom: none; }
+  .oq-when { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
+  .oq-spec { background: #e8f0fe; color: #1967d2; }
+  .oq-build { background: var(--green-soft); color: var(--green); }
+
+  .footer { margin-top: 3rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="badge">PRD · Approved</div>
+  <h1>Paperclear</h1>
+  <p class="subtitle">Product Requirements — Japanese Document Action Reader</p>
+
+  <!-- Core Journey -->
+  <p class="section-label">Core Journey</p>
+  <div class="card">
+    <h2>End-to-end flow</h2>
+    <div class="journey">
+      <div class="jstep">
+        <div class="jnum tag-first" style="background:#1967d2;color:#fff;">1</div>
+        <div class="jbody">
+          <strong>First launch — API key setup</strong>
+          <span>Enter Gemini API key → validate with test call → save locally → proceed to app</span>
+        </div>
+      </div>
+      <div class="jstep">
+        <div class="jnum">2</div>
+        <div class="jbody">
+          <strong>Initial Screen</strong>
+          <span>Large drop zone with guide text · drag-and-drop or file picker · language toggle top-right</span>
+        </div>
+      </div>
+      <div class="jstep">
+        <div class="jnum">3</div>
+        <div class="jbody">
+          <strong>Processing</strong>
+          <span>Layout splits left/right · scanning animation over photo · placeholder lines on right</span>
+        </div>
+      </div>
+      <div class="jstep">
+        <div class="jnum accent">4</div>
+        <div class="jbody">
+          <strong>Result — the "oh, that's useful" moment</strong>
+          <span>Vermilion deadline block at top · 3 action lines appear one-by-one · photo stays left for comparison</span>
+        </div>
+      </div>
+      <div class="jstep">
+        <div class="jnum">5</div>
+        <div class="jbody">
+          <strong>Language switch (any time)</strong>
+          <span>Toggle switches やさしい日本語 ↔ English instantly — no re-read required</span>
+        </div>
+      </div>
+      <div class="jstep">
+        <div class="jnum">6</div>
+        <div class="jbody">
+          <strong>Next document</strong>
+          <span>"別の書類を読む" button → back to Initial Screen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <p class="section-label">Screens &amp; Layout</p>
+
+  <details open>
+    <summary>🔑 &nbsp;API Key Setup Screen <em style="font-weight:400;font-size:0.8rem;color:var(--muted)"> — first launch only</em></summary>
+    <div class="dbody">
+      <ul>
+        <li>Short explanation: "書類を読むために、Geminiの鍵が必要です"</li>
+        <li>Masked text input with eye icon (show/hide toggle)</li>
+        <li>"鍵の取得方法を見る" link — opens Google's official API key page in system browser</li>
+        <li>"保存して始める" button — validates key with test call before saving</li>
+        <li><strong>On success:</strong> key saved locally → navigate to Initial Screen</li>
+        <li><strong>On failure:</strong> inline error "鍵が正しくないようです。もう一度確認してください" — stay on screen</li>
+      </ul>
+    </div>
+  </details>
+
+  <details open>
+    <summary>🏠 &nbsp;Initial Screen</summary>
+    <div class="dbody">
+      <ul>
+        <li><strong>Top-left:</strong> App name + logo (small)</li>
+        <li><strong>Top-left (near logo):</strong> Settings gear icon (small, unobtrusive)</li>
+        <li><strong>Top-right:</strong> Language toggle — やさしい日本語 / English</li>
+        <li><strong>Center:</strong> Large drop zone — envelope/document illustration + 2-line guide text</li>
+        <li><strong>Below drop zone:</strong> "写真を選ぶ / Choose photo" button</li>
+        <li>No other menus, navigation, or settings visible</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>⏳ &nbsp;Processing Screen</summary>
+    <div class="dbody">
+      <ul>
+        <li><strong>Left panel:</strong> Uploaded photo, full height</li>
+        <li><strong>Right panel:</strong> "書類を読んでいます… / Reading document…" + 3 soft placeholder lines</li>
+        <li><strong>Animation:</strong> Thin light line sweeps top→bottom over the photo</li>
+        <li>Language toggle remains active; no other input accepted</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>✅ &nbsp;Result Screen</summary>
+    <div class="dbody">
+      <ul>
+        <li><strong>Left panel:</strong> Photo (unchanged)</li>
+        <li><strong>Right panel — top:</strong> <span style="color:var(--accent);font-weight:700;">Vermilion deadline block</span> — e.g. "10月31日まで（あと23日）"</li>
+        <li><strong>Right panel — below deadline:</strong> 3 action lines appear one-by-one
+          <ul>
+            <li>何を / What: [action]</li>
+            <li>いつまでに / By when: [date]</li>
+            <li>どうやって / How: [method]</li>
+          </ul>
+        </li>
+        <li><strong>Top-right:</strong> Language toggle — switches instantly, no re-read</li>
+        <li><strong>Bottom-right:</strong> "別の書類を読む / Read another document" button</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>⚙️ &nbsp;Settings Screen</summary>
+    <div class="dbody">
+      <ul>
+        <li>Accessed via gear icon on Initial Screen</li>
+        <li>"鍵を変更する / Change key" — opens API Key Setup Screen flow</li>
+        <li>"鍵を削除する / Delete key" — removes saved key; next launch shows API Key Setup Screen</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Look and Feel -->
+  <p class="section-label">Look &amp; Feel</p>
+  <div class="card">
+    <h2>Visual direction (from scope.md)</h2>
+    <div class="palette">
+      <div class="swatch" style="background:#f5f0e8;"><span style="color:#7a7060;">BG</span></div>
+      <div class="swatch" style="background:#1a1510;"><span>INK</span></div>
+      <div class="swatch" style="background:#c0392b;"><span>朱</span></div>
+    </div>
+    <div class="lf-row"><span class="lf-label">Theme</span><span>"A paper document, neatly sorted out." Calm and trustworthy.</span></div>
+    <div class="lf-row"><span class="lf-label">Background</span><span>Warm off-white — washi paper tone</span></div>
+    <div class="lf-row"><span class="lf-label">Accent</span><span>Vermilion (朱色) — deadline only. Like a red hanko stamp.</span></div>
+    <div class="lf-row"><span class="lf-label">Typography</span><span>Mincho (serif) headings · Gothic (sans-serif) body</span></div>
+    <div class="lf-row"><span class="lf-label">Animation</span><span>Scanning line during processing · staggered 3-line reveal on result</span></div>
+    <div class="lf-row"><span class="lf-label">Spacing</span><span>Generous whitespace — never cramped</span></div>
+    <div class="lf-row"><span class="lf-label">Avoid</span><span style="color:var(--accent);">Purple gradients · dashboard boilerplate · generic AI-app look</span></div>
+  </div>
+
+  <!-- States -->
+  <p class="section-label">States &amp; Boundaries</p>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="states">
+      <thead>
+        <tr><th>State</th><th>What the user sees</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="state-tag tag-first">First launch</span></td>
+          <td>API Key Setup Screen before Initial Screen</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-normal">Normal launch</span></td>
+          <td>Proceeds directly to Initial Screen</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-normal">Processing</span></td>
+          <td>Scanning animation · no input accepted</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-normal">Result — success</span></td>
+          <td>Deadline + 3 lines as described</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-error">No deadline</span></td>
+          <td>"期限は見つかりませんでした" in deadline area · partial 3-line summary shown</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-error">Non-document image</span></td>
+          <td>"書類を読み取れませんでした" + "別の写真を選ぶ" button</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-error">Network / API error</span></td>
+          <td>"読み取りに失敗しました。もう一度お試しください" + retry</td>
+        </tr>
+        <tr>
+          <td><span class="state-tag tag-normal">Invalid API key (setup)</span></td>
+          <td>Inline error · stay on setup screen</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- What we're building -->
+  <p class="section-label">What We're Building</p>
+  <div class="card">
+    <h2>POC scope</h2>
+    <ul class="checklist">
+      <li><span class="ck">✓</span><span>API Key Setup Screen (first launch, with validation)</span></li>
+      <li><span class="ck">✓</span><span>Initial Screen — drop zone, file picker, language toggle, settings gear</span></li>
+      <li><span class="ck">✓</span><span>Processing state — scanning animation, placeholder lines</span></li>
+      <li><span class="ck">✓</span><span>Result Screen — vermilion deadline, 3-line sequential reveal, language toggle, "read another" button</span></li>
+      <li><span class="ck">✓</span><span>Error states: no deadline / non-document image / network failure</span></li>
+      <li><span class="ck">✓</span><span>Settings Screen — change key / delete key</span></li>
+      <li><span class="ck">✓</span><span>Single Gemini API call returns both JP and EN — no re-read on toggle</span></li>
+      <li><span class="df">–</span><span style="color:var(--muted);">Document history <em>(deferred)</em></span></li>
+      <li><span class="df">–</span><span style="color:var(--muted);">Copy-to-clipboard <em>(deferred)</em></span></li>
+    </ul>
+  </div>
+
+  <!-- Open Questions -->
+  <p class="section-label">Open Questions</p>
+  <div class="card">
+    <h2>Must resolve before proceeding</h2>
+    <ul class="oq-list">
+      <li>
+        <strong>Gemini model / endpoint</strong> — which model to use (e.g. gemini-2.0-flash)?
+        <span class="oq-when oq-spec">resolve at 4-spec</span>
+      </li>
+      <li>
+        <strong>Local key storage mechanism</strong> — OS keychain vs. local config file?
+        <span class="oq-when oq-spec">resolve at 4-spec</span>
+      </li>
+      <li>
+        <strong>"How to get a key" URL</strong> — exact Google API Console URL.
+        <span class="oq-when oq-build">confirm at build</span>
+      </li>
+      <li>
+        <strong>やさしい日本語 guidelines</strong> — prompt wording for plain Japanese output.
+        <span class="oq-when oq-build">confirm at build</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="footer">Paperclear · prd.md · draft — Devpost Learn: Build With AI Basics</div>
+</div>
+</body>
+</html>

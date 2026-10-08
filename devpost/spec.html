@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperclear — Technical Spec</title>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #faf7f2;
+    --ink: #1a1510;
+    --muted: #7a7060;
+    --border: #ddd5c4;
+    --accent: #c0392b;
+    --accent-soft: #fdecea;
+    --blue: #1967d2;
+    --blue-soft: #e8f0fe;
+    --green: #2d6a4f;
+    --green-soft: #d8f3dc;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; padding: 2rem 1rem 5rem; }
+  .page { max-width: 860px; margin: 0 auto; }
+
+  .badge { display: inline-block; background: var(--accent-soft); color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: .25rem .8rem; border-radius: 999px; margin-bottom: .7rem; }
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: .3rem; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; }
+
+  .section-label { font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); margin: 2.2rem 0 .8rem; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.5rem; margin-bottom: 1rem; }
+  .card h2 { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .8rem; }
+
+  /* Plain language */
+  .plain-card { border-left: 4px solid var(--accent); background: var(--accent-soft); }
+  .plain-card h2 { color: var(--accent); }
+  .plain-card p { font-size: .95rem; margin-bottom: .5rem; }
+
+  /* Data flow diagram */
+  .flow-diagram { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: .5rem 0; }
+  .fnode { flex: 0 0 auto; background: var(--bg); border: 1.5px solid var(--border); border-radius: 9px; padding: .75rem .9rem; text-align: center; min-width: 100px; }
+  .fnode .ficon { font-size: 1.3rem; margin-bottom: .2rem; }
+  .fnode .flabel { font-size: .75rem; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .fnode .fsub { font-size: .65rem; color: var(--muted); margin-top: .15rem; }
+  .fnode.highlight { background: var(--accent-soft); border-color: var(--accent); }
+  .farrow { flex: 0 0 auto; padding: 0 .4rem; color: var(--muted); font-size: 1rem; }
+
+  /* Journey stepper */
+  .stepper { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 1rem; padding: .9rem 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step-num { flex-shrink: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; margin-top: .15rem; }
+  .step-num.accent { background: var(--accent); }
+  .step-body strong { display: block; font-size: .9rem; margin-bottom: .15rem; }
+  .step-body code { font-size: .78rem; background: var(--border); padding: .05rem .3rem; border-radius: 3px; }
+  .step-body span { font-size: .82rem; color: var(--muted); }
+
+  /* Stack table */
+  .stack-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .stack-table th { text-align: left; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: .4rem .75rem; border-bottom: 2px solid var(--border); }
+  .stack-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .stack-table tr:last-child td { border-bottom: none; }
+  .stack-table a { color: var(--blue); font-size: .8rem; }
+  .warn-tag { display: inline-block; font-size: .65rem; font-weight: 700; background: #fff3cd; color: #856404; padding: .1rem .4rem; border-radius: 3px; margin-left: .3rem; }
+
+  /* Component cards */
+  details { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .7rem; background: var(--surface); overflow: hidden; }
+  summary { cursor: pointer; padding: .9rem 1.2rem; font-weight: 600; font-size: .9rem; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "＋"; color: var(--muted); }
+  details[open] summary::after { content: "－"; }
+  .dbody { padding: 0 1.2rem 1.1rem; font-size: .87rem; }
+  .dbody p { color: var(--muted); margin-bottom: .35rem; }
+  .dbody .prd-ref { font-size: .72rem; color: var(--blue); font-weight: 600; background: var(--blue-soft); padding: .1rem .4rem; border-radius: 3px; }
+
+  /* File tree */
+  .file-tree { background: #1a1510; color: #e8e0d0; font-family: "Consolas", "Courier New", monospace; font-size: .82rem; line-height: 1.7; padding: 1.2rem 1.4rem; border-radius: var(--radius); overflow-x: auto; }
+  .file-tree .comment { color: #7a9060; }
+  .file-tree .highlight { color: #f0a050; }
+
+  /* Data model table */
+  .dm-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .dm-table th { text-align: left; font-size: .67rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: .35rem .7rem; border-bottom: 2px solid var(--border); }
+  .dm-table td { padding: .55rem .7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .dm-table tr:last-child td { border-bottom: none; }
+  .persist { color: var(--green); font-weight: 700; font-size: .75rem; }
+  .ephemeral { color: var(--muted); font-size: .75rem; }
+
+  /* Failures */
+  .failure-list { list-style: none; }
+  .failure-list li { display: flex; gap: .7rem; padding: .6rem 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+  .failure-list li:last-child { border-bottom: none; }
+  .failure-list .fx { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  /* JSON preview */
+  pre { background: #1a1510; color: #e8e0d0; font-size: .8rem; line-height: 1.6; padding: 1rem 1.2rem; border-radius: var(--radius); overflow-x: auto; margin-top: .7rem; }
+  pre .key { color: #86c0f0; }
+  pre .str { color: #a0d870; }
+  pre .num { color: #f0c050; }
+
+  .footer { margin-top: 3rem; font-size: .75rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="badge">Spec · Approved</div>
+  <h1>Paperclear</h1>
+  <p class="subtitle">Technical Specification — Electron + Gemini AI</p>
+
+  <!-- Plain language -->
+  <p class="section-label">How This Works</p>
+  <div class="card plain-card">
+    <h2>In plain language</h2>
+    <p>PaperclearはElectronという仕組みでHTML/CSS/JavaScriptをデスクトップアプリの「箱」に入れたものです。</p>
+    <p>書類の写真をアプリに入れると、その画像データがGoogleの<strong>Gemini API</strong>に送られます。GeminiはAIで、画像を読んで「何をすべきか・いつまでに・どうやって」を取り出し、日本語と英語の両方でテキストとして返してきます。アプリはそのテキストを画面の右側に表示します。</p>
+    <p>APIキーはあなたのパソコンの中だけに保存されます（AppData内）。プロジェクトフォルダにも、GitHubにも入りません。</p>
+  </div>
+
+  <!-- Architecture diagram -->
+  <p class="section-label">Architecture</p>
+  <div class="card">
+    <h2>Data flow</h2>
+    <div class="flow-diagram">
+      <div class="fnode">
+        <div class="ficon">🖼️</div>
+        <div class="flabel">Photo file</div>
+        <div class="fsub">drag / picker</div>
+      </div>
+      <div class="farrow">→</div>
+      <div class="fnode">
+        <div class="ficon">🖥️</div>
+        <div class="flabel">Renderer</div>
+        <div class="fsub">index.html<br>renderer.js</div>
+      </div>
+      <div class="farrow">IPC→</div>
+      <div class="fnode">
+        <div class="ficon">⚙️</div>
+        <div class="flabel">Main Process</div>
+        <div class="fsub">main.js<br>gemini.js</div>
+      </div>
+      <div class="farrow">→</div>
+      <div class="fnode highlight">
+        <div class="ficon">🤖</div>
+        <div class="flabel">Gemini API</div>
+        <div class="fsub">gemini-3.8-flash</div>
+      </div>
+      <div class="farrow">←JSON</div>
+      <div class="fnode">
+        <div class="ficon">✅</div>
+        <div class="flabel">Result</div>
+        <div class="fsub">deadline + 3 lines<br>JP &amp; EN</div>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.8rem;">APIキー: AppData/config.json（プロジェクト外）→ Main Processが読み込む</p>
+  </div>
+
+  <!-- Core Journey -->
+  <p class="section-label">Core Journey Through the System</p>
+  <div class="card">
+    <h2>Step by step</h2>
+    <div class="stepper">
+      <div class="step">
+        <div class="step-num" style="background:var(--blue)">1</div>
+        <div class="step-body">
+          <strong>起動 → APIキー確認</strong>
+          <span><code>userData/config.json</code>を読む。なければSetup画面へ。キー保存時にGeminiにテスト通信。</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>初期画面 → 写真選択</strong>
+          <span>ドラッグ or ファイルピッカー → RendererがMainにIPC送信</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Gemini API呼び出し</strong>
+          <span><code>gemini.js</code>が画像(base64) + プロンプトを送信。モデル名は定数1か所で管理。</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num accent">4</div>
+        <div class="step-body">
+          <strong>JSONレスポンス → 画面描画</strong>
+          <span>期限ブロック（朱色）→ 3行が <code>animation-delay</code> で順番に表示</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>言語切り替え</strong>
+          <span>メモリ内のJP/ENデータを切り替えるだけ。APIへの再通信なし。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stack -->
+  <p class="section-label">Stack</p>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="stack-table">
+      <thead><tr><th>項目</th><th>選択</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>フレームワーク</td><td><strong>Electron</strong></td><td>HTML/JS経験が使える。VS Code・Slack同様の実績技術。</td></tr>
+        <tr><td>言語</td><td><strong>HTML / CSS / JavaScript</strong></td><td>学習者が経験済み。</td></tr>
+        <tr><td>Gemini SDK</td><td><strong>@google/genai</strong> <a href="https://googleapis.github.io/js-genai/" target="_blank">docs</a></td><td>Google公式JS SDK。画像入力対応。</td></tr>
+        <tr><td>AIモデル</td><td><strong>gemini-3.8-flash</strong><span class="warn-tag">設定集約</span></td><td>新規プロジェクト向け推奨・画像対応・高速。コードにハードコードしない。</td></tr>
+        <tr><td>APIキー保存</td><td><strong>userData/config.json</strong></td><td>プロジェクト外・リポジトリ外。Electron標準の安全な場所。</td></tr>
+        <tr><td>パッケージ管理</td><td><strong>npm</strong></td><td>Electronの標準。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card" style="background:var(--accent-soft);border-color:var(--accent);">
+    <h2 style="color:var(--accent);">⚠️ ビルド開始前に確認</h2>
+    <p style="font-size:.9rem;">gemini-3.8-flash の無料枠・レート制限 → <a href="https://ai.google.dev/pricing" target="_blank" style="color:var(--blue);">https://ai.google.dev/pricing</a></p>
+  </div>
+
+  <!-- Components -->
+  <p class="section-label">Components</p>
+
+  <details open>
+    <summary>⚙️ &nbsp;main.js — Electronメインプロセス</summary>
+    <div class="dbody">
+      <p>アプリ起動・ウィンドウ生成・ファイルシステムアクセス・IPC受信を担当。</p>
+      <p>APIキーの読み書きはここで行う（Rendererは直接ファイルに触れない）。</p>
+      <p class="prd-ref">prd.md > Settings, API Key Setup Screen</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🔌 &nbsp;preload.js — セキュリティブリッジ</summary>
+    <div class="dbody">
+      <p><code>contextBridge</code>でRendererからMainへの安全なAPIを公開。Electronのセキュリティ設計上必須。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🔑 &nbsp;setup.html / setup.js — APIキー入力画面</summary>
+    <div class="dbody">
+      <p>マスク入力・表示切り替え（目アイコン）・「保存して始める」ボタン。Mainにキー検証と保存を依頼。</p>
+      <p class="prd-ref">prd.md > API Key Setup Screen</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🏠 &nbsp;index.html / renderer.js — メインアプリ（シングルページ）</summary>
+    <div class="dbody">
+      <p>初期画面・処理中・結果・設定のすべてをここで管理。画面状態（<code>home / loading / result / settings</code>）に応じてHTML表示を切り替える。</p>
+      <p class="prd-ref">prd.md > Initial Screen, Processing Screen, Result Screen, Settings Screen</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>🤖 &nbsp;gemini.js — Gemini API通信</summary>
+    <div class="dbody">
+      <p>モデル名・プロンプトをここに集約。画像(base64)+プロンプト → Gemini → JSONパース → 構造化データを返す。</p>
+      <p class="prd-ref">prd.md > Document Reading</p>
+      <p style="margin-top:.5rem;"><strong>期待するJSONレスポンス:</strong></p>
+      <pre><code><span class="key">"deadline"</span>: <span class="str">"10月31日"</span>,
+<span class="key">"days_remaining"</span>: <span class="num">23</span>,
+<span class="key">"ja"</span>: { <span class="key">"what"</span>: <span class="str">"..."</span>, <span class="key">"by_when"</span>: <span class="str">"..."</span>, <span class="key">"how"</span>: <span class="str">"..."</span> },
+<span class="key">"en"</span>: { <span class="key">"what"</span>: <span class="str">"..."</span>, <span class="key">"by_when"</span>: <span class="str">"..."</span>, <span class="key">"how"</span>: <span class="str">"..."</span> }</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>💾 &nbsp;config.js — APIキー管理</summary>
+    <div class="dbody">
+      <p>読み書き先: <code>app.getPath('userData')/config.json</code>（例: <code>C:\Users\username\AppData\Roaming\Paperclear\</code>）</p>
+      <p>プロジェクトフォルダ外のため <code>.gitignore</code> への追記不要。</p>
+      <p class="prd-ref">prd.md > Product Decisions（APIキー保存）</p>
+    </div>
+  </details>
+
+  <!-- File structure -->
+  <p class="section-label">File Structure</p>
+  <div class="file-tree">
+paperclear/<br>
+├── src/<br>
+│   ├── <span class="highlight">main.js</span>          <span class="comment"># Electronメインプロセス</span><br>
+│   ├── <span class="highlight">preload.js</span>       <span class="comment"># セキュリティブリッジ</span><br>
+│   ├── config.js        <span class="comment"># APIキー読み書き（userData外）</span><br>
+│   ├── <span class="highlight">gemini.js</span>        <span class="comment"># Gemini API通信・パース（モデル名はここ）</span><br>
+│   ├── index.html       <span class="comment"># メインアプリ（全画面）</span><br>
+│   ├── renderer.js      <span class="comment"># index.htmlのUIロジック</span><br>
+│   ├── setup.html       <span class="comment"># APIキー入力画面</span><br>
+│   ├── setup.js         <span class="comment"># setup.htmlのUIロジック</span><br>
+│   └── style.css        <span class="comment"># 全画面共通スタイル</span><br>
+├── assets/<br>
+│   └── icon.png<br>
+├── demo-docs/           <span class="comment"># 架空の書類サンプル（デモ用）</span><br>
+├── devpost/             <span class="comment"># Devpostプランニングドキュメント</span><br>
+├── .gitignore<br>
+├── package.json<br>
+└── README.md
+  </div>
+
+  <!-- Data model -->
+  <p class="section-label">Data Model</p>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="dm-table">
+      <thead><tr><th>データ</th><th>保存場所</th><th>アプリを閉じると</th></tr></thead>
+      <tbody>
+        <tr><td>APIキー</td><td><code>userData/config.json</code></td><td><span class="persist">残る</span></td></tr>
+        <tr><td>言語設定</td><td>メモリ（JS変数）</td><td><span class="ephemeral">リセット（日本語）</span></td></tr>
+        <tr><td>読み取り結果（JP/EN）</td><td>メモリ（JS変数）</td><td><span class="ephemeral">消える</span></td></tr>
+        <tr><td>書類写真</td><td>メモリ（ObjectURL）</td><td><span class="ephemeral">消える</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Failure modes -->
+  <p class="section-label">Important Failure Modes</p>
+  <div class="card">
+    <ul class="failure-list">
+      <li><span class="fx">!</span><span><strong>APIが遅い・タイムアウト</strong> → 「読み取りに失敗しました。もう一度お試しください」＋リトライ</span></li>
+      <li><span class="fx">!</span><span><strong>無料枠の上限（429エラー）</strong> → 通信エラーと区別して「利用回数の上限に達しました。少し待ってからお試しください」</span></li>
+      <li><span class="fx">!</span><span><strong>書類ではない画像</strong> → JSONパース失敗 or 期限空 → 「書類を読み取れませんでした」＋「別の写真を選ぶ」</span></li>
+      <li><span class="fx">!</span><span><strong>APIキー無効</strong> → セットアップ画面でテスト通信失敗 → 「鍵が正しくないようです」、画面に留まる</span></li>
+    </ul>
+  </div>
+
+  <div class="footer">Paperclear · spec.md · draft — Devpost Learn: Build With AI Basics</div>
+</div>
+</body>
+</html>

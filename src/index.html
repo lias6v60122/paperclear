@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; img-src 'self' data:">
+  <title>Paperclear</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ══ Setup screen (shown on first launch when no API key is saved) ══ -->
+  <div id="screen-setup" class="screen">
+    <div class="setup-card">
+      <h1 class="setup-title">Paperclear</h1>
+      <p class="setup-sub" id="setup-desc">
+        書類を読むために、GeminiのAPIキーが必要です。
+      </p>
+      <div class="input-wrap">
+        <input id="key-input" class="key-input" type="password"
+               placeholder="AIza..." autocomplete="off" spellcheck="false">
+        <button class="eye-btn" id="eye-btn" title="Show/hide key">👁</button>
+      </div>
+      <a class="setup-link" id="get-key-link">🔑 鍵の取得方法を見る（Google AI Studio）</a>
+      <button class="save-btn" id="save-btn">保存して始める</button>
+      <p class="setup-error" id="setup-error"></p>
+    </div>
+  </div>
+
+  <!-- ══ Home screen ══ -->
+  <div id="screen-home" class="screen">
+    <header class="app-header">
+      <span class="app-logo">Paperclear</span>
+      <div class="header-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="ja">やさしい日本語</button>
+          <button class="lang-btn" data-lang="en">English</button>
+        </div>
+        <button class="gear-btn" id="gear-btn" title="Settings">⚙️</button>
+      </div>
+    </header>
+    <div class="home-body">
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-icon">📄</div>
+        <p class="drop-zone-title" id="drop-title">書類の写真をここに入れてください</p>
+        <p class="drop-zone-sub" id="drop-sub">
+          役所や学校から届いた書類の写真を入れると、<br>
+          何を・いつまでに・どうすればいいかを3行でお伝えします
+        </p>
+        <button class="choose-btn" id="choose-btn">写真を選ぶ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Result screen ══ -->
+  <div id="screen-result" class="screen">
+    <header class="app-header">
+      <span class="app-logo">Paperclear</span>
+      <div class="header-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="ja">やさしい日本語</button>
+          <button class="lang-btn" data-lang="en">English</button>
+        </div>
+        <button class="gear-btn" id="gear-btn-result" title="Settings">⚙️</button>
+      </div>
+    </header>
+    <div class="result-body">
+      <!-- Left: document photo with scan animation -->
+      <div class="photo-panel" id="photo-panel">
+        <img id="doc-photo" src="" alt="Document photo">
+        <div class="scan-line" id="scan-line"></div>
+      </div>
+
+      <!-- Right: loading state, then results -->
+      <div class="result-panel" id="result-panel">
+
+        <!-- Loading state -->
+        <div id="loading-state">
+          <p class="loading-text" id="loading-text">書類を読んでいます…</p>
+          <div class="placeholder-lines">
+            <div class="placeholder-line"></div>
+            <div class="placeholder-line"></div>
+            <div class="placeholder-line"></div>
+          </div>
+        </div>
+
+        <!-- Results (hidden until ready) -->
+        <div id="results-state" style="display:none;">
+          <div class="deadline-block" id="deadline-block">
+            <div class="deadline-label" id="deadline-label">期限</div>
+            <div class="deadline-value" id="deadline-value"></div>
+            <div class="deadline-value-sub" id="deadline-value-sub"></div>
+            <div class="deadline-days" id="deadline-days"></div>
+          </div>
+          <div class="action-lines">
+            <div class="action-item" id="action-0">
+              <div class="action-label" id="action-label-0">何を</div>
+              <div class="action-value" id="action-value-0"></div>
+            </div>
+            <div class="action-item" id="action-1">
+              <div class="action-label" id="action-label-1">いつまでに</div>
+              <div class="action-value" id="action-value-1"></div>
+            </div>
+            <div class="action-item" id="action-2">
+              <div class="action-label" id="action-label-2">どうやって</div>
+              <div class="action-value" id="action-value-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-state" style="display:none;">
+          <div class="error-block">
+            <p class="error-msg" id="error-msg"></p>
+          </div>
+        </div>
+
+        <div class="result-footer" id="result-footer" style="display:none;">
+          <button class="retry-btn" id="retry-btn" style="display:none;">もう一度試す</button>
+          <button class="another-btn" id="another-btn">別の書類を読む</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Settings overlay ══ -->
+  <div class="settings-overlay" id="settings-overlay">
+    <div class="settings-panel">
+      <p class="settings-title">設定</p>
+      <button class="settings-btn" id="change-key-btn">🔑 鍵を変更する</button>
+      <button class="settings-btn danger" id="delete-key-btn">🗑 鍵を削除する</button>
+      <button class="settings-btn" id="close-settings-btn" style="color:var(--ink-muted);">閉じる</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

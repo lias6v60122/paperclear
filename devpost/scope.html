@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperclear — Scope</title>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #faf7f2;
+    --accent: #c0392b;
+    --accent-soft: #fdecea;
+    --warn: #c0392b;
+    --warn-soft: #fdecea;
+    --green: #2d6a4f;
+    --green-soft: #d8f3dc;
+    --muted: #7a7060;
+    --border: #ddd5c4;
+    --text: #1a1510;
+    --radius: 10px;
+    font-size: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    padding: 2rem 1rem 4rem;
+  }
+  .page { max-width: 780px; margin: 0 auto; }
+
+  /* Header */
+  .header { margin-bottom: 2.5rem; }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+  }
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .tagline { font-size: 1.1rem; color: var(--muted); }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card h2 {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .card p { color: var(--text); }
+
+  /* Kernel highlight */
+  .kernel {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+  }
+  .kernel h2 { color: var(--accent); }
+  .kernel p { font-size: 1.05rem; }
+
+  /* Diagram */
+  .diagram-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+  }
+  .diagram-card h2 {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 580px;
+  }
+  .node {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 0.75rem;
+    text-align: center;
+  }
+  .node .icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
+  .node .label { font-size: 0.78rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .node .sub { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.3; }
+  .arrow {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 0.4rem;
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+  .node.proof {
+    background: var(--green-soft);
+    border-color: var(--green);
+  }
+  .node.proof .label { color: var(--green); }
+
+  /* Done */
+  .done-list { list-style: none; }
+  .done-list li {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+  .done-list li:last-child { border-bottom: none; }
+  .done-list .check { color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .done-list .edge { color: var(--warn); font-weight: 700; flex-shrink: 0; }
+
+  /* Accordion */
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.75rem;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details + details { margin-top: 0; }
+  summary {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "＋";
+    font-size: 1rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  details[open] summary::after { content: "－"; }
+  .details-body {
+    padding: 0 1.25rem 1.25rem;
+    font-size: 0.92rem;
+  }
+  .details-body ul { padding-left: 1.2rem; }
+  .details-body li { margin-bottom: 0.3rem; color: var(--muted); }
+  .details-body li strong { color: var(--text); }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 2rem 0 0.75rem;
+  }
+
+  /* Design direction card */
+  .design { }
+  .design-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 520px) { .design-grid { grid-template-columns: 1fr; } }
+  .design-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+  .design-icon {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+  .palette-swatch {
+    display: inline-block;
+    width: 1.2rem; height: 1.2rem;
+    background: linear-gradient(135deg, #f5f0e8 50%, #c0392b 50%);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-bottom: 0.25rem;
+  }
+  .design-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+  .design-desc { font-size: 0.88rem; line-height: 1.4; }
+  .vermilion { color: #c0392b; font-weight: 700; }
+  .avoid-box {
+    background: #fff8f7;
+    border: 1px solid #f5c6c2;
+    border-radius: 7px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .avoid-label {
+    font-weight: 700;
+    color: #c0392b;
+    margin-right: 0.3rem;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="badge">Scope · Approved</div>
+    <h1>Paperclear</h1>
+    <p class="tagline">A desktop app that reads official Japanese documents and tells you what to do, by when, and how.</p>
+  </div>
+
+  <!-- Kernel -->
+  <div class="card kernel">
+    <h2>The Unique Kernel</h2>
+    <p>Translation apps translate text. <strong>Paperclear tells you what to do.</strong> It turns a wall of bureaucratic Japanese into a 3-line action instruction with the deadline made impossible to miss. The output isn't a reading — it's a to-do.</p>
+  </div>
+
+  <!-- Flow diagram -->
+  <div class="diagram-card">
+    <h2>Core Loop</h2>
+    <div class="flow">
+      <div class="node">
+        <div class="icon">🧑‍💼</div>
+        <div class="label">Foreign resident / family helper</div>
+        <div class="sub">Gets an official envelope. Can't parse it.</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="icon">📷</div>
+        <div class="label">Photo in</div>
+        <div class="sub">Drop one image into the app</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="icon">🤖</div>
+        <div class="label">Gemini reads it</div>
+        <div class="sub">Extracts action + deadline</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node proof">
+        <div class="icon">✅</div>
+        <div class="label">3-line action + deadline</div>
+        <div class="sub">Plain Japanese or English, their choice</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What working looks like -->
+  <div class="card">
+    <h2>What "Working" Looks Like</h2>
+    <ul class="done-list">
+      <li><span class="check">✓</span><span>Deadline appears large at the top — e.g. <strong>"10月31日まで（あと23日）"</strong></span></li>
+      <li><span class="check">✓</span><span>3 action lines: <strong>何を / いつまでに / どうやって</strong></span></li>
+      <li><span class="check">✓</span><span>Toggle switches the output between plain Japanese and English</span></li>
+      <li><span class="check">✓</span><span>Original photo visible alongside the result</span></li>
+      <li><span class="edge">!</span><span>No deadline found → <strong>"期限は見つかりませんでした"</strong></span></li>
+      <li><span class="edge">!</span><span>Not a document → <strong>"書類を読み取れませんでした"</strong></span></li>
+    </ul>
+  </div>
+
+  <!-- Design Direction -->
+  <div class="card design">
+    <h2>Inspiration &amp; Design Direction</h2>
+    <div class="design-grid">
+      <div class="design-item">
+        <div class="design-icon">🗂️</div>
+        <div class="design-label">Theme</div>
+        <div class="design-desc">"A paper document, neatly sorted out." Calm and trustworthy — not tech-flashy.</div>
+      </div>
+      <div class="design-item">
+        <div class="design-icon palette-swatch"></div>
+        <div class="design-label">Color palette</div>
+        <div class="design-desc">Washi off-white background · ink-black text · <span class="vermilion">vermilion</span> for deadlines only — like a red hanko stamp.</div>
+      </div>
+      <div class="design-item">
+        <div class="design-icon">🔴</div>
+        <div class="design-label">Deadline display</div>
+        <div class="design-desc">Largest element on screen, in vermilion — unmissable, like an urgent sticky note.</div>
+      </div>
+      <div class="design-item">
+        <div class="design-icon">🖋️</div>
+        <div class="design-label">Typography</div>
+        <div class="design-desc">Mincho (serif) for headings · Gothic (sans-serif) for body. Japanese document feel.</div>
+      </div>
+      <div class="design-item">
+        <div class="design-icon">✨</div>
+        <div class="design-label">Animation</div>
+        <div class="design-desc">3 action lines appear one by one in sequence after the photo is processed.</div>
+      </div>
+      <div class="design-item">
+        <div class="design-icon">⬜</div>
+        <div class="design-label">Spacing</div>
+        <div class="design-desc">Generous whitespace. Never pack information into a single screen.</div>
+      </div>
+    </div>
+    <div class="avoid-box">
+      <span class="avoid-label">Avoid</span> Purple gradients, dashboard boilerplate, generic template aesthetics.
+    </div>
+  </div>
+
+  <!-- Boundary / Later / Cut -->
+  <p class="section-label">POC Boundary, Later &amp; Cut</p>
+
+  <details open>
+    <summary>✅ &nbsp;In scope (POC)</summary>
+    <div class="details-body">
+      <ul>
+        <li>Photo input</li>
+        <li>Gemini API call to read the document</li>
+        <li>3-line action summary (what / by when / how)</li>
+        <li>Deadline display</li>
+        <li>Plain Japanese / English language toggle</li>
+        <li>Graceful error states (no deadline, non-document image)</li>
+        <li>Fictional demo documents only — no real personal data</li>
+        <li>API key stored locally, never committed to the repo</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>🔜 &nbsp;Later</summary>
+    <div class="details-body">
+      <ul>
+        <li>Support for other document types (tax, school, medical)</li>
+        <li>Copy-to-clipboard for the summary</li>
+        <li>History of previously scanned documents</li>
+        <li>Mobile version</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>✂️ &nbsp;Explicitly cut</summary>
+    <div class="details-body">
+      <ul>
+        <li><strong>Document storage &amp; sharing</strong> — not needed to prove the core loop; adds complexity and privacy concerns</li>
+        <li><strong>User accounts</strong> — no login needed for a local desktop tool</li>
+        <li><strong>Application filing / form-filling</strong> — this app reads, it does not act</li>
+        <li><strong>Legal or tax advice</strong> — summarizes procedures only, not legal obligations</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="footer">Paperclear · scope.md · draft — Devpost Learn: Build With AI Basics</div>
+</div>
+</body>
+</html>
