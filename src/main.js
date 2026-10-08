@@ -5,10 +5,13 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
 const fs = require('fs');
 const { readDocument, validateApiKey } = require('./gemini');
 const { getApiKey, saveApiKey, deleteApiKey, hasSavedApiKey } = require('./config');
+
+// Remove default File/Edit/View/Window/Help menu bar
+Menu.setApplicationMenu(null);
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -16,14 +19,30 @@ function createWindow() {
     height: 750,
     minWidth: 800,
     minHeight: 600,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#faf7f2',
+      symbolColor: '#1a1510',
+      height: 48,
+    },
+    icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-    backgroundColor: '#f5f0e8',
+    backgroundColor: '#faf7f2',
     title: 'Paperclear',
   });
+
+  // Ctrl+Shift+I opens DevTools in development only
+  if (!app.isPackaged) {
+    win.webContents.on('before-input-event', (_event, input) => {
+      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+        win.webContents.toggleDevTools();
+      }
+    });
+  }
 
   win.loadFile(path.join(__dirname, 'index.html'));
 }
