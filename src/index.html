@@ -47,7 +47,10 @@
           役所や学校から届いた書類の写真を入れると、<br>
           何を・いつまでに・どうすればいいかを3行でお伝えします
         </p>
-        <button class="choose-btn" id="choose-btn">写真を選ぶ</button>
+        <div class="choose-btns">
+          <button class="choose-btn" id="choose-btn">写真を選ぶ</button>
+          <button class="choose-btn choose-btn-camera" id="camera-open-btn">📷 カメラで撮る</button>
+        </div>
       </div>
     </div>
   </div>
@@ -121,6 +124,50 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ══ Camera screen ══ -->
+  <div id="screen-camera" class="screen">
+    <header class="app-header">
+      <span class="app-logo">Paperclear</span>
+      <div class="header-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="ja">やさしい日本語</button>
+          <button class="lang-btn" data-lang="en">English</button>
+        </div>
+        <button class="gear-btn" id="gear-btn-camera" title="Settings">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Viewfinder / snapshot area -->
+    <div class="camera-media">
+      <video id="camera-video" autoplay playsinline muted></video>
+      <img id="camera-snapshot" src="" alt="Captured photo" style="display:none">
+
+      <!-- Error overlay (permission denied, no camera, etc.) -->
+      <div class="camera-error-overlay" id="camera-error-overlay" style="display:none">
+        <span class="camera-error-icon">📷</span>
+        <p class="camera-error-msg" id="camera-error-msg"></p>
+        <button class="choose-btn" id="camera-back-btn">ホームに戻る</button>
+      </div>
+    </div>
+
+    <!-- Bottom toolbar -->
+    <div class="camera-toolbar">
+      <!-- Viewfinder controls: cancel · shutter · spacer -->
+      <div class="camera-ctrl" id="camera-viewfinder-ctrl">
+        <button class="camera-side-btn" id="camera-cancel-btn">キャンセル</button>
+        <button class="camera-shutter-btn" id="camera-shutter-btn" title="Capture"></button>
+        <div class="camera-ctrl-spacer"></div>
+      </div>
+      <!-- Review controls: retake · use -->
+      <div class="camera-ctrl" id="camera-review-ctrl" style="display:none">
+        <button class="camera-side-btn" id="camera-retake-btn">撮り直す</button>
+        <button class="choose-btn" id="camera-use-btn">これで読む</button>
+      </div>
+    </div>
+
+    <canvas id="camera-canvas" style="display:none"></canvas>
   </div>
 
   <!-- ══ Settings overlay ══ -->

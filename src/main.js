@@ -5,7 +5,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu, session } = require('electron');
 const fs = require('fs');
 const { readDocument, validateApiKey } = require('./gemini');
 const { getApiKey, saveApiKey, deleteApiKey, hasSavedApiKey } = require('./config');
@@ -47,7 +47,16 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'index.html'));
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Allow getUserMedia (camera) permission from renderer process
+  session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => {
+    callback(permission === 'media');
+  });
+  session.defaultSession.setPermissionCheckHandler((_wc, permission) => {
+    return permission === 'media';
+  });
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
@@ -81,6 +90,29 @@ ipcMain.handle('select-and-read-document', async () => {
     return { error: 'no_api_key', imageDataUrl };
   }
 
+  try {
+    const result = await readDocument(apiKey, base64, mimeType);
+    return { result, imageDataUrl };
+  } catch (err) {
+    const message = err.message || '';
+    if (message === 'TIMEOUT' ||
+        message.includes('503') || message.includes('429') ||
+        message.toLowerCase().includes('unavailable') ||
+        message.toLowerCase().includes('resource_exhausted') ||
+        message.toLowerCase().includes('quota')) {
+      return { error: 'rate_limit', imageDataUrl };
+    }
+    return { error: 'api_error', message, imageDataUrl };
+  }
+});
+
+// IPC: receive base64 image from camera, call Gemini, return structured result
+ipcMain.handle('read-document-from-base64', async (_event, { base64, mimeType }) => {
+  const imageDataUrl = `data:${mimeType};base64,${base64}`;
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return { error: 'no_api_key', imageDataUrl };
+  }
   try {
     const result = await readDocument(apiKey, base64, mimeType);
     return { result, imageDataUrl };

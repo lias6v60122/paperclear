@@ -13,6 +13,9 @@ contextBridge.exposeInMainWorld('api', {
   deleteApiKey: () => ipcRenderer.invoke('delete-api-key'),
   hasApiKey: () => ipcRenderer.invoke('has-api-key'),
 
+  // Camera: send captured base64 image to Gemini, return result
+  readDocumentFromBase64: (data) => ipcRenderer.invoke('read-document-from-base64', data),
+
   // Utility: open a URL in the system browser
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
 });

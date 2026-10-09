@@ -22,6 +22,15 @@ const strings = {
     errNoKey: 'APIキーが設定されていません。設定からキーを入力してください。',
     retryBtn: 'もう一度試す',
     anotherBtn: '別の書類を読む',
+    cameraBtn: 'カメラで撮る',
+    cameraCancel: 'キャンセル',
+    cameraRetake: '撮り直す',
+    cameraUse: 'これで読む',
+    cameraBack: 'ホームに戻る',
+    cameraErrPermission: 'カメラの使用が許可されていません。\nシステムの設定でカメラを許可してください。',
+    cameraErrNotFound: 'カメラが見つかりませんでした。\nPCにカメラが接続されているか確認してください。',
+    cameraErrInUse: 'カメラを起動できませんでした。\n他のアプリがカメラを使用中の可能性があります。',
+    cameraErrGeneric: 'カメラを使用できませんでした。',
   },
   en: {
     dropTitle: 'Drop your document photo here',
@@ -39,6 +48,15 @@ const strings = {
     errNoKey: 'No API key set. Please enter your key in settings.',
     retryBtn: 'Try again',
     anotherBtn: 'Read another document',
+    cameraBtn: 'Use camera',
+    cameraCancel: 'Cancel',
+    cameraRetake: 'Retake',
+    cameraUse: 'Use this',
+    cameraBack: 'Back to home',
+    cameraErrPermission: 'Camera access was denied.\nPlease allow it in your system settings.',
+    cameraErrNotFound: 'No camera found.\nPlease check that a camera is connected.',
+    cameraErrInUse: 'Could not start camera.\nAnother app may be using it.',
+    cameraErrGeneric: 'Could not use camera.',
   },
 };
 
@@ -70,6 +88,11 @@ function updateHomeText() {
   $('drop-title').textContent = s.dropTitle;
   $('drop-sub').innerHTML = s.dropSub.replace('\n', '<br>');
   $('choose-btn').textContent = s.chooseBtn;
+  $('camera-open-btn').textContent = '📷 ' + s.cameraBtn;
+  $('camera-cancel-btn').textContent = s.cameraCancel;
+  $('camera-retake-btn').textContent = s.cameraRetake;
+  $('camera-use-btn').textContent = s.cameraUse;
+  $('camera-back-btn').textContent = s.cameraBack;
 }
 
 // ── Startup: check for API key ────────────────────────────────────────────────
@@ -291,6 +314,7 @@ function closeSettings() {
 
 $('gear-btn').addEventListener('click', openSettings);
 $('gear-btn-result').addEventListener('click', openSettings);
+$('gear-btn-camera').addEventListener('click', openSettings);
 $('close-settings-btn').addEventListener('click', closeSettings);
 $('settings-overlay').addEventListener('click', (e) => {
   if (e.target === $('settings-overlay')) closeSettings();
@@ -310,4 +334,111 @@ $('delete-key-btn').addEventListener('click', async () => {
   showScreen('screen-setup');
   $('key-input').value = '';
   $('setup-error').textContent = '';
+});
+
+// ── Camera screen ─────────────────────────────────────────────────────────────
+let cameraStream = null;
+let capturedDataUrl = null;
+
+async function openCamera() {
+  showScreen('screen-camera');
+  $('camera-video').style.display = 'block';
+  $('camera-snapshot').style.display = 'none';
+  $('camera-snapshot').src = '';
+  $('camera-viewfinder-ctrl').style.display = 'flex';
+  $('camera-review-ctrl').style.display = 'none';
+  $('camera-error-overlay').style.display = 'none';
+  capturedDataUrl = null;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 3840 }, height: { ideal: 2160 }, facingMode: { ideal: 'environment' } },
+      audio: false,
+    });
+    cameraStream = stream;
+    $('camera-video').srcObject = stream;
+  } catch (err) {
+    showCameraError(err);
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  $('camera-video').srcObject = null;
+}
+
+function showCameraError(err) {
+  stopCamera();
+  const s = strings[currentLang];
+  let msg;
+  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    msg = s.cameraErrPermission;
+  } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+    msg = s.cameraErrNotFound;
+  } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+    msg = s.cameraErrInUse;
+  } else {
+    msg = s.cameraErrGeneric;
+  }
+  $('camera-error-msg').textContent = msg;
+  $('camera-error-overlay').style.display = 'flex';
+}
+
+$('camera-open-btn').addEventListener('click', openCamera);
+
+$('camera-cancel-btn').addEventListener('click', () => {
+  stopCamera();
+  showScreen('screen-home');
+  updateHomeText();
+});
+
+$('camera-back-btn').addEventListener('click', () => {
+  showScreen('screen-home');
+  updateHomeText();
+});
+
+$('camera-shutter-btn').addEventListener('click', () => {
+  const video = $('camera-video');
+  const canvas = $('camera-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+  stopCamera();
+
+  $('camera-snapshot').src = capturedDataUrl;
+  $('camera-snapshot').style.display = 'block';
+  $('camera-video').style.display = 'none';
+  $('camera-viewfinder-ctrl').style.display = 'none';
+  $('camera-review-ctrl').style.display = 'flex';
+});
+
+$('camera-retake-btn').addEventListener('click', openCamera);
+
+$('camera-use-btn').addEventListener('click', async () => {
+  if (!capturedDataUrl) return;
+  const [meta, base64] = capturedDataUrl.split(',');
+  const mimeType = meta.split(':')[1].split(';')[0];
+
+  showResultScreen();
+  $('doc-photo').src = capturedDataUrl;
+
+  const response = await window.api.readDocumentFromBase64({ base64, mimeType });
+
+  if (!response) {
+    showScreen('screen-home');
+    return;
+  }
+
+  if (response.error) {
+    showError(response.error);
+    return;
+  }
+
+  currentResult = response.result;
+  renderResult(response.result);
 });
