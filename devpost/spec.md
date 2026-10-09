@@ -104,7 +104,9 @@ PRD ref: `prd.md > Look and Feel`, `scope.md > Inspiration & Identity`
 
 Electronのメインプロセス。アプリの起動・ウィンドウ生成・ファイルシステムアクセス・APIキーの読み書きを担当。RendererプロセスとはIPC（プロセス間通信）で通信する。
 
-PRD ref: `prd.md > Features and Behavior > Settings`（キーの読み書き）
+カメラ対応として `session.defaultSession.setPermissionRequestHandler` で `media` 権限を許可する。カメラキャプチャ画像の読み取りは新IPCハンドラ `read-document-from-base64`（base64 + mimeType を受け取り、Geminiに送信）で処理する。
+
+PRD ref: `prd.md > Features and Behavior > Settings`（キーの読み書き）、`prd.md > Features and Behavior > Document Reading`（カメラ入力）
 
 ### Preload Script (`preload.js`)
 
@@ -118,9 +120,16 @@ PRD ref: `prd.md > Screens and Layout > API Key Setup Screen`
 
 ### Renderer — Main App (`index.html` / `renderer.js`)
 
-初期画面・処理中・結果画面・設定画面をすべてここで管理する（シングルページ構成）。画面の状態（`setup` / `home` / `loading` / `result`）に応じてHTMLの表示を切り替える。
+初期画面・処理中・結果画面・設定画面・**カメラ画面**をすべてここで管理する（シングルページ構成）。画面の状態（`setup` / `home` / `result` / `camera`）に応じてHTMLの表示を切り替える。
 
-PRD ref: `prd.md > Screens and Layout`（Initial / Processing / Result / Settings）
+**カメラ画面の実装:**
+- `navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 3840 }, height: { ideal: 2160 } } })` で高解像度ストリームを取得
+- `<video>` 要素でライブ映像を表示、`<canvas>` でフレームをキャプチャ
+- キャプチャ後は `canvas.toDataURL('image/jpeg', 0.92)` でbase64化
+- base64 → IPC `read-document-from-base64` → Gemini → 結果画面（ファイル選択と同じフロー）
+- エラー種別: `NotAllowedError`（権限拒否）/ `NotFoundError`（カメラなし）/ `NotReadableError`（使用中）
+
+PRD ref: `prd.md > Screens and Layout`（Initial / Processing / Result / Settings / Camera）
 
 ### Gemini Client (`gemini.js`)
 

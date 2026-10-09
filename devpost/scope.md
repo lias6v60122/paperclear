@@ -54,7 +54,8 @@ That last moment — watching a wall of bureaucratic text collapse into three cl
 
 ## The POC Boundary
 
-- **In:** Photo input, Gemini API call, 3-line action summary (what / by when / how), deadline display, plain Japanese / English language toggle, graceful error states for no-deadline and non-document images.
+- **In:** Photo input (file picker or in-app camera capture), Gemini API call, 3-line action summary (what / by when / how), deadline display, plain Japanese / English language toggle, graceful error states for no-deadline and non-document images.
+- **Camera input:** Live viewfinder → capture → review (use / retake) → read. Permission errors and missing camera handled with clear messages. High resolution requested (up to 4K if the device supports it).
 - **Demo documents:** Fictional only. No real personal information.
 - **API key:** Stored in a separate local file, never committed to the repository.
 

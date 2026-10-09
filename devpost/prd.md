@@ -36,8 +36,28 @@ Source: `scope.md > The Unique Kernel`, `scope.md > Who It's For`
 - Drop zone: centered, large. Contains an envelope/document illustration and a two-line guide:
   - JP: 「役所や学校から届いた書類の写真を入れると、何を・いつまでに・どうすればいいかを3行でお伝えします」
   - EN: "Drop a photo of an official document and get 3-line action instructions — what to do, by when, and how."
-- "写真を選ぶ / Choose photo" button below the drop zone.
+- "写真を選ぶ / Choose photo" button and "カメラで撮る / Use camera" button side by side below the drop zone.
 - No other menus or settings visible.
+
+### Camera Screen
+
+Reached by tapping "カメラで撮る / Use camera" on the Initial Screen.
+
+**Live viewfinder mode:**
+- Full-height camera viewfinder with the document centered in frame.
+- "撮影 / Capture" button centered at the bottom.
+- "キャンセル / Cancel" link returns to the Initial Screen and stops the camera.
+- Resolution requested: as high as the device supports (ideal 4K, falls back to what is available).
+
+**Review mode** (after capture):
+- The captured still fills the same area.
+- Two buttons: "撮り直す / Retake" (returns to live viewfinder) and "これで読む / Use this" (proceeds to Processing, same flow as file picker).
+
+**Camera error state:**
+- If the user denies permission: "カメラの使用が許可されていません。システムの設定でカメラを許可してください / Camera access was not allowed. Please allow it in your system settings."
+- If no camera is found: "カメラが見つかりませんでした / No camera found."
+- If the camera is in use by another app: "カメラを起動できませんでした。他のアプリがカメラを使用中の可能性があります / Could not start camera. Another app may be using it."
+- All error states show a "戻る / Back" button to return to the Initial Screen.
 
 ### Processing Screen (transition state)
 - Left panel: the uploaded photo, full height.
@@ -80,7 +100,9 @@ Source: `scope.md > Inspiration & Identity`
 ## Features and Behavior
 
 ### Document Reading
-- Accepts photo files dropped onto the drop zone or selected via file picker.
+- Accepts photo files dropped onto the drop zone, selected via file picker, or captured with the in-app camera.
+- Camera path: live viewfinder → capture still → review (use / retake) → send to Gemini.
+- File picker and camera paths produce the same output and share the same Processing and Result screens.
 - Sends the image to Gemini API and requests: deadline, what to do, by when, and how.
 - Returns structured output (deadline + 3 lines) in both やさしい日本語 and English in a single API call, so the toggle never requires a second call.
 
