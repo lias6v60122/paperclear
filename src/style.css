@@ -353,7 +353,7 @@ body {
     "num lbl"
     "num val";
   column-gap: 0.75rem;
-  padding: 0.9rem 0;
+  padding: 1.1rem 0;
   border-top: 1px solid var(--border);
   opacity: 0;
   transform: translateY(8px);
@@ -398,9 +398,9 @@ body {
 
 .action-value {
   grid-area: val;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* Error state */
@@ -419,7 +419,7 @@ body {
 
 /* Result footer */
 .result-footer {
-  margin-top: auto;
+  margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
 }
