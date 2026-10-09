@@ -1,6 +1,6 @@
 # Paperclear
 
-**Paperclear — Turn confusing Japanese paperwork into 3 clear actions and a deadline.**
+**Turn confusing Japanese paperwork into 3 clear actions and a deadline.**
 
 Foreign residents in Japan receive official documents they can't fully read. Paperclear takes a photo of the document and tells you exactly what to do, by when, and how — in plain Japanese or English.
 
@@ -10,11 +10,11 @@ Foreign residents in Japan receive official documents they can't fully read. Pap
 
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="docs/screenshot.png" width="420" alt="Japanese result screen"><br>
       <em>Plain Japanese — deadline converted from the Japanese era calendar</em>
     </td>
-    <td align="center" width="50%">
+    <td align="center" valign="top" width="50%">
       <img src="docs/screenshot-en.png" width="420" alt="English result screen"><br>
       <em>English — switches instantly, no re-read</em>
     </td>
