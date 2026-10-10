@@ -5,8 +5,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-  // Slice 1: open file picker, send image to Gemini, return result
-  selectAndReadDocument: () => ipcRenderer.invoke('select-and-read-document'),
+  // Open file picker and return image data (base64 + mimeType + dataUrl)
+  openFilePicker: () => ipcRenderer.invoke('open-file-picker'),
 
   // Slice 3: API key setup and settings
   validateAndSaveKey: (apiKey) => ipcRenderer.invoke('validate-and-save-key', apiKey),

@@ -22,6 +22,7 @@ const strings = {
     errNoKey: 'APIキーが設定されていません。設定からキーを入力してください。',
     retryBtn: 'もう一度試す',
     anotherBtn: '別の書類を読む',
+    dropErrType: '画像ファイル（JPG・PNG・WebP）をドロップしてください。',
     cameraBtn: 'カメラで撮る',
     cameraCancel: 'キャンセル',
     cameraRetake: '撮り直す',
@@ -48,6 +49,7 @@ const strings = {
     errNoKey: 'No API key set. Please enter your key in settings.',
     retryBtn: 'Try again',
     anotherBtn: 'Read another document',
+    dropErrType: 'Please drop an image file (JPG, PNG, or WebP).',
     cameraBtn: 'Use camera',
     cameraCancel: 'Cancel',
     cameraRetake: 'Retake',
@@ -149,41 +151,102 @@ $('key-input').addEventListener('keydown', (e) => {
 // ── Home screen — drag and drop ───────────────────────────────────────────────
 const dropZone = $('drop-zone');
 
-dropZone.addEventListener('dragover', (e) => {
+// Prevent Electron/Chromium from navigating to dropped files anywhere in the window
+window.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+});
+
+// Accept drops anywhere on the home screen (not just the drop zone)
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if ($('screen-home').classList.contains('active')) {
+    handleFileDrop(e.dataTransfer.files);
+  }
+});
+
+// Visual feedback only when hovering over the drop zone itself
+dropZone.addEventListener('dragenter', (e) => {
   e.preventDefault();
   dropZone.classList.add('dragover');
 });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  // Drag-and-drop file reading handled via IPC in slice 2
-  // For now, the drop triggers the file picker
-  handleChoosePhoto();
+dropZone.addEventListener('dragleave', (e) => {
+  // Only remove highlight when the cursor leaves the drop zone entirely
+  if (!dropZone.contains(e.relatedTarget)) {
+    dropZone.classList.remove('dragover');
+  }
 });
 
 $('choose-btn').addEventListener('click', handleChoosePhoto);
 
-async function handleChoosePhoto() {
+// Read a dropped File as base64 data URL
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const imageDataUrl = ev.target.result;
+      const [meta, base64] = imageDataUrl.split(',');
+      const mimeType = meta.split(':')[1].split(';')[0];
+      resolve({ base64, mimeType, imageDataUrl });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+let dropErrorTimer = null;
+function showDropError(msg) {
+  const el = $('drop-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  dropZone.classList.add('drag-reject');
+  clearTimeout(dropErrorTimer);
+  dropErrorTimer = setTimeout(() => {
+    el.style.display = 'none';
+    dropZone.classList.remove('drag-reject');
+  }, 3000);
+}
+
+async function handleFileDrop(files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const isImage = validTypes.includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name);
+  if (!isImage) {
+    showDropError(strings[currentLang].dropErrType);
+    return;
+  }
+  const { base64, mimeType, imageDataUrl } = await readFileAsDataURL(file);
   showResultScreen();
-  const response = await window.api.selectAndReadDocument();
+  $('doc-photo').src = imageDataUrl;
+  const response = await window.api.readDocumentFromBase64({ base64, mimeType });
+  if (!response) { showScreen('screen-home'); return; }
+  if (response.error) { showError(response.error); return; }
+  currentResult = response.result;
+  renderResult(response.result);
+}
+
+async function handleChoosePhoto() {
+  // Step 1: open file picker — yields here while user picks a file
+  const file = await window.api.openFilePicker();
+  if (!file) return; // user cancelled
+
+  // Step 2: show result screen WITH the image immediately, then start scan animation
+  showResultScreen();
+  $('doc-photo').src = file.imageDataUrl;
+
+  // Step 3: call Gemini (scan animation plays over the visible photo)
+  const response = await window.api.readDocumentFromBase64({ base64: file.base64, mimeType: file.mimeType });
 
   if (!response) {
-    // User cancelled the file picker
     showScreen('screen-home');
     return;
   }
-
-  // Show the photo
-  if (response.imageDataUrl) {
-    $('doc-photo').src = response.imageDataUrl;
-  }
-
   if (response.error) {
     showError(response.error);
     return;
   }
-
   currentResult = response.result;
   renderResult(response.result);
 }

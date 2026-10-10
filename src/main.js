@@ -66,8 +66,8 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// IPC: open file picker, read image, call Gemini, return structured result
-ipcMain.handle('select-and-read-document', async () => {
+// IPC: open file picker and return image data only (Gemini call is a separate step)
+ipcMain.handle('open-file-picker', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     title: 'Select document photo',
     filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }],
@@ -81,29 +81,9 @@ ipcMain.handle('select-and-read-document', async () => {
   const base64 = imageData.toString('base64');
   const ext = path.extname(filePath).toLowerCase();
   const mimeType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
-
-  // Also return the image as base64 so the renderer can display it
   const imageDataUrl = `data:${mimeType};base64,${base64}`;
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    return { error: 'no_api_key', imageDataUrl };
-  }
-
-  try {
-    const result = await readDocument(apiKey, base64, mimeType);
-    return { result, imageDataUrl };
-  } catch (err) {
-    const message = err.message || '';
-    if (message === 'TIMEOUT' ||
-        message.includes('503') || message.includes('429') ||
-        message.toLowerCase().includes('unavailable') ||
-        message.toLowerCase().includes('resource_exhausted') ||
-        message.toLowerCase().includes('quota')) {
-      return { error: 'rate_limit', imageDataUrl };
-    }
-    return { error: 'api_error', message, imageDataUrl };
-  }
+  return { base64, mimeType, imageDataUrl };
 });
 
 // IPC: receive base64 image from camera, call Gemini, return structured result
